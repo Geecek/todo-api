@@ -93,7 +93,6 @@ app.delete('/todos/:id', (req, res) => {
 app.patch('/todos/:id', (req, res) => {
     const id = req.params.id
     const body = _.pick(req.body, ['text', 'completed'])
-    console.log(req)
 
     if (!ObjectID.isValid(id)) {
         return res
