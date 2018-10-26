@@ -191,3 +191,64 @@ describe('GET /users/me', () => {
             .end(done)
     })
 })
+
+describe('POST /users', () => {
+    it('should create user', (done) => {
+        const email = 'email@example.com'
+        request(app)
+            .post('/users')
+            .send({
+                email,
+                password: 'lele123!'
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toBeTruthy()
+                expect(res.body._id).toBeTruthy()
+                expect(res.body.email).toBe(email)
+            })
+            .end(done)
+    })
+
+    it('should not create user if passed invalid email', (done) => {
+        request(app)
+            .post('/users')
+            .send({
+                email: 'asdfa@asssss.',
+                password: 'sdasdasd123'
+            })
+            .expect(400)
+            .expect((res) => {
+                expect(res.body._message).toEqual('User validation failed')
+            })
+            .end(done)
+    })
+
+    it('should not create user if passed invalid password', (done) => {
+        request(app)
+            .post('/users')
+            .send({
+                email: 'test@lele.pl',
+                password: 'sdasd'
+            })
+            .expect(400)
+            .expect((res) => {
+                expect(res.body._message).toEqual('User validation failed')
+            })
+            .end(done)
+    })
+
+    it('should not create user if passed used email', (done) => {
+        request(app)
+            .post('/users')
+            .send({
+                email: users[0].email,
+                password: 'validpassword123!'
+            })
+            .expect(400)
+            .expect((res) => {
+                expect(res.body.code).toEqual(11000)
+            })
+            .end(done)
+    })
+})
