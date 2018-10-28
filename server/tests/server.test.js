@@ -252,3 +252,33 @@ describe('POST /users', () => {
             .end(done)
     })
 })
+
+describe('POST /users/login', () => {
+    it('should login user and return auth token', (done) => {
+        request(app)
+            .post('/users/login')
+            .send({
+                email: users[1].email,
+                password: users[1].password
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toBeTruthy()
+            })
+            .end(done)
+    })
+
+    it('should not login user with invalid credentials', (done) => {
+        request(app)
+            .post('/users/login')
+            .send({
+                email: users[1].email,
+                password: 'invalidpassword'
+            })
+            .expect(400)
+            .expect((res) => {
+                expect(res.headers['x-auth']).toBeFalsy()
+            })
+            .end(done)
+    })
+})
