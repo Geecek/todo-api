@@ -4,6 +4,7 @@ const {ObjectID} = require('mongodb')
 
 const {app} = require('./../server')
 const {Todo} = require('./../models/todo')
+const {User} = require('./../models/user')
 const {todos, fillTodos, users, fillUsers} = require('./seed/seed')
 
 beforeEach(fillTodos)
@@ -280,5 +281,24 @@ describe('POST /users/login', () => {
                 expect(res.headers['x-auth']).toBeFalsy()
             })
             .end(done)
+    })
+})
+
+describe('DELETE /users/me/token', () => {
+    it('should remove auth token', (done) => {
+        request(app)
+            .delete('/users/me/token')
+            .set('x-auth', users[0].tokens[0].token)
+            .expect(200)
+            .end((err, res) => {
+                if (err) {
+                    return done(err)
+                }
+
+                User.findById(users[0]._id).then((user) => {
+                    expect(user.tokens.length).toEqual(0)
+                    done()
+                }).catch((err) => done(err))
+            })
     })
 })
