@@ -74,6 +74,7 @@ describe('GET /todos/:id', () => {
     it('should return a todo', (done) => {
         request(app)
             .get(`/todos/${todos[0]._id.toHexString()}`)
+            .set('x-auth', users[0].tokens[0].token)
             .expect(200)
             .expect((res) => {
                 expect(res.body.todo.text).toBe(todos[0].text)
@@ -81,9 +82,18 @@ describe('GET /todos/:id', () => {
             .end(done)
     })
 
+    it('should return a todo owned by other user', (done) => {
+        request(app)
+            .get(`/todos/${todos[2]._id.toHexString()}`)
+            .set('x-auth', users[0].tokens[0].token)
+            .expect(404)
+            .end(done)
+    })
+
     it('should return 404 if todo not found', (done) => {
         request(app)
             .get(`/todos/${new ObjectID().toHexString()}`)
+            .set('x-auth', users[0].tokens[0].token)
             .expect(404)
             .end(done)
     })
@@ -91,6 +101,7 @@ describe('GET /todos/:id', () => {
     it('should return 404 for invalid object ids', (done) => {
         request(app)
             .get('/todos/1337')
+            .set('x-auth', users[0].tokens[0].token)
             .expect(404)
             .end(done)
     })
@@ -101,6 +112,7 @@ describe('DELETE /todos/:id', () => {
         const id = todos[0]._id.toHexString()
         request(app)
             .delete(`/todos/${id}`)
+            .set('x-auth', users[0].tokens[0].token)
             .expect(200)
             .expect((res) => {
                 expect(res.body.todo._id).toBe(id)
@@ -116,9 +128,27 @@ describe('DELETE /todos/:id', () => {
             })
     })
 
+    it('should not remove a todo owned by other user', (done) => {
+        const id = todos[1]._id.toHexString()
+        request(app)
+            .delete(`/todos/${id}`)
+            .set('x-auth', users[1].tokens[0].token)
+            .expect(404)
+            .end((err, res) => {
+                if (err) {
+                    return done(err)
+                }
+                Todo.findById(id).then((todo) => {
+                    expect(todo).toBeTruthy()
+                    done()
+                }).catch((err) => done(err))
+            })
+    })
+
     it('should return 404 if todo not found', (done) => {
         request(app)
             .delete(`/todos/${new ObjectID().toHexString()}`)
+            .set('x-auth', users[1].tokens[0].token)
             .expect(404)
             .end(done)
     })
@@ -126,6 +156,7 @@ describe('DELETE /todos/:id', () => {
     it('should return 404 for invalid object ids', (done) => {
         request(app)
             .delete('/todos/1337')
+            .set('x-auth', users[1].tokens[0].token)
             .expect(404)
             .end(done)
     })
@@ -138,6 +169,7 @@ describe('PATCH /todos/:id' , () => {
 
         request(app)
             .patch(`/todos/${id}`)
+            .set('x-auth', users[0].tokens[0].token)
             .send({
                 text,
                 completed: true
@@ -151,12 +183,28 @@ describe('PATCH /todos/:id' , () => {
             .end(done)
     })
 
+    it('should not update the todo owned by other user', (done) => {
+        const id = todos[2]._id.toHexString()
+        const text = 'New test todo'
+
+        request(app)
+            .patch(`/todos/${id}`)
+            .set('x-auth', users[0].tokens[0].token)
+            .send({
+                text,
+                completed: true
+            })
+            .expect(404)
+            .end(done)
+    })
+
     it('should clear completedAt when todo is not completed', (done) => {
         const id = todos[0]._id.toHexString()
         const text = 'New not completed todo'
 
         request(app)
             .patch(`/todos/${id}`)
+            .set('x-auth', users[0].tokens[0].token)
             .send({
                 text,
                 completed: false,
