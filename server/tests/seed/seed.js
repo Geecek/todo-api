@@ -4,23 +4,6 @@ const jwt = require('jsonwebtoken')
 const {Todo} = require('./../../models/todo')
 const {User} = require('./../../models/user')
 
-const todos = [
-    {
-        _id: new ObjectID(),
-        text: 'First test todo',
-        completed: true,
-        completedAt: 1337
-    },
-    {
-        _id: new ObjectID(),
-        text: 'Second test todo'
-    },
-    {
-        _id: new ObjectID(),
-        text: 'Third test todo'
-    }
-]
-
 const firstUserID = new ObjectID()
 const secondUserID = new ObjectID()
 const users = [{
@@ -36,6 +19,26 @@ const users = [{
     email: 'test2@example.com',
     password: 'passwordxd'
 }]
+
+const todos = [
+    {
+        _owner: firstUserID,
+        _id: new ObjectID(),
+        text: 'First test todo',
+        completed: true,
+        completedAt: 1337
+    },
+    {
+        _owner: firstUserID,
+        _id: new ObjectID(),
+        text: 'Second test todo'
+    },
+    {
+        _owner: secondUserID,
+        _id: new ObjectID(),
+        text: 'Third test todo'
+    }
+]
 
 const fillTodos = (done) => {
     Todo.deleteMany({}).then(() => {

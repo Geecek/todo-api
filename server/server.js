@@ -17,8 +17,9 @@ const port = process.env.PORT
 app.use(bodyParser.json())
 app.use(cors())
 
-app.post('/todos', (req, res) => {
+app.post('/todos', authenticate, (req, res) => {
     const todo = new Todo({
+        _owner: req.user._id,
         text: req.body.text
     })
 
@@ -29,8 +30,10 @@ app.post('/todos', (req, res) => {
     })
 })
 
-app.get('/todos', (req, res) => {
-    Todo.find().then((todos) => {
+app.get('/todos', authenticate, (req, res) => {
+    Todo.find({
+        _owner: req.user._id
+    }).then((todos) => {
         res.send({
             todos
         })
