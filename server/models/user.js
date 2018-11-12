@@ -39,7 +39,7 @@ UserSchema.methods = {
         const token = jwt.sign({
             _id: user._id.toHexString(),
             access
-        }, '123123').toString()
+        }, process.env.JWT_SECRET).toString()
 
         user.tokens = user.tokens.concat([{
             access,
@@ -68,7 +68,7 @@ UserSchema.statics = {
         let decoded
 
         try {
-            decoded = jwt.verify(token, '123123')
+            decoded = jwt.verify(token, process.env.JWT_SECRET)
         } catch (error) {
             return Promise.reject()
         }
