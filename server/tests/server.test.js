@@ -4,11 +4,18 @@ const {ObjectID} = require('mongodb')
 
 const {app} = require('./../server')
 const {Todo} = require('./../models/todo')
+const {Board} = require('./../models/board')
 const {User} = require('./../models/user')
-const {todos, fillTodos, users, fillUsers} = require('./seed/seed')
+const {
+    todos, fillTodos,
+    users, fillUsers,
+} = require('./seed/seed')
 
-beforeEach(fillTodos)
 beforeEach(fillUsers)
+beforeEach(fillTodos)
+beforeEach((done) => {
+    Board.deleteMany({}).then(() => done())
+})
 
 describe('POST /todos', () => {
     it('should create a new todo', (done) => {
@@ -217,6 +224,53 @@ describe('PATCH /todos/:id' , () => {
                 expect(res.body.todo.completedAt).toBeFalsy()
             })
             .end(done)
+    })
+})
+
+describe('POST /boards', () => {
+    it('should create a new board', (done) => {
+        const title = 'Test board title'
+
+        request(app)
+            .post('/boards')
+            .set('x-auth', users[0].tokens[0].token)
+            .send({
+                title
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.title).toBe(title)
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err)
+                }
+                Board
+                    .find({title})
+                    .then((boards) => {
+                        expect(boards.length).toBe(1)
+                        expect(boards[0].title).toBe(title)
+                        done()
+                    })
+                    .catch((e) => done(e))
+            })
+    })
+
+    it('should not create board with invalid data', (done) => {
+        request(app)
+            .post('/boards')
+            .set('x-auth', users[0].tokens[0].token)
+            .send({})
+            .expect(400)
+            .end((err, res) => {
+                if (err) {
+                    return done(err)
+                }
+                Board.find().then((boards) => {
+                    expect(boards.length).toBe(0)
+                    done()
+                }).catch((err) => done(err))
+            })
     })
 })
 
