@@ -160,6 +160,20 @@ app.post('/boards', authenticate, (req, res) => {
     })
 })
 
+app.get('/boards', authenticate, (req, res) => {
+    Board.find({
+        _owner: req.user._id
+    }).then((boards) => {
+        res.send({
+            boards
+        })
+    }, (err) => {
+        res.send({
+            err
+        })
+    })
+})
+
 app.post('/users', (req, res) => {
     const user = new User(_.pick(req.body, ['email', 'password']))
     user.save().then(() => {
