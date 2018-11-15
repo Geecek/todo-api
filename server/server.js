@@ -8,6 +8,7 @@ const _ = require('lodash')
 const {mongoose} = require('./db/mongoose')
 const {ObjectID} = require('mongodb')
 const {Todo} = require('./models/todo')
+const {Board} = require('./models/board')
 const {User} = require('./models/user')
 const {authenticate} = require('./middleware/authenticate')
 
@@ -143,6 +144,19 @@ app.patch('/todos/:id', authenticate, (req, res) => {
         res
             .status(400)
             .send()
+    })
+})
+
+app.post('/boards', authenticate, (req, res) => {
+    const board = new Board({
+        _owner: req.user._id,
+        title: req.body.title
+    })
+
+    board.save().then((doc) => {
+        res.send(doc)
+    }, (err) => {
+        res.status(400).send(err)
     })
 })
 
