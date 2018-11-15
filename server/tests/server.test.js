@@ -8,14 +8,13 @@ const {Board} = require('./../models/board')
 const {User} = require('./../models/user')
 const {
     todos, fillTodos,
+    fillBoards,
     users, fillUsers,
 } = require('./seed/seed')
 
 beforeEach(fillUsers)
 beforeEach(fillTodos)
-beforeEach((done) => {
-    Board.deleteMany({}).then(() => done())
-})
+beforeEach(fillBoards)
 
 describe('POST /todos', () => {
     it('should create a new todo', (done) => {
@@ -267,10 +266,23 @@ describe('POST /boards', () => {
                     return done(err)
                 }
                 Board.find().then((boards) => {
-                    expect(boards.length).toBe(0)
+                    expect(boards.length).toBe(3)
                     done()
                 }).catch((err) => done(err))
             })
+    })
+})
+
+describe('GET /boards', () => {
+    it('should get all boards', (done) => {
+        request(app)
+            .get('/boards')
+            .set('x-auth', users[0].tokens[0].token)
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.boards.length).toBe(2)
+            })
+            .end(done)
     })
 })
 

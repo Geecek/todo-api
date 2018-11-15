@@ -2,6 +2,7 @@ const {ObjectID} = require('mongodb')
 const jwt = require('jsonwebtoken')
 
 const {Todo} = require('./../../models/todo')
+const {Board} = require('./../../models/board')
 const {User} = require('./../../models/user')
 
 const firstUserID = new ObjectID()
@@ -23,6 +24,24 @@ const users = [{
         token: jwt.sign({_id: secondUserID, access: 'auth'}, process.env.JWT_SECRET).toString()
     }]
 }]
+
+const boards = [
+    {
+        _owner: firstUserID,
+        _id: new ObjectID(),
+        title: 'First test board'
+    },
+    {
+        _owner: firstUserID,
+        _id: new ObjectID(),
+        title: 'Second test board',
+    },
+    {
+        _owner: secondUserID,
+        _id: new ObjectID(),
+        title: 'Third test board'
+    }
+]
 
 const todos = [
     {
@@ -50,6 +69,12 @@ const fillTodos = (done) => {
     }).then(() => done())
 }
 
+const fillBoards = (done) => {
+    Board.deleteMany({}).then(() => {
+        return Board.insertMany(boards)
+    }).then(() => done())
+}
+
 const fillUsers = (done) => {
     User.remove({}).then(() => {
         const firstUser = new User(users[0]).save()
@@ -62,5 +87,6 @@ module.exports = {
     todos,
     users,
     fillTodos,
+    fillBoards,
     fillUsers
 }
