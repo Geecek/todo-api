@@ -189,6 +189,17 @@ app.post('/lists', authenticate, (req, res) => {
     })
 })
 
+app.get('/lists', authenticate, (req, res) => {
+    List.find({
+        _owner: req.user._id,
+        _parent: req.query._id
+    }).then((lists) => {
+        res.send({lists})
+    }, (err) => {
+        res.send({err})
+    })
+})
+
 app.post('/users', (req, res) => {
     const user = new User(_.pick(req.body, ['email', 'password']))
     user.save().then(() => {
