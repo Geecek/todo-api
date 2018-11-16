@@ -5,16 +5,20 @@ const {ObjectID} = require('mongodb')
 const {app} = require('./../server')
 const {Todo} = require('./../models/todo')
 const {Board} = require('./../models/board')
+const {List} = require('./../models/list')
 const {User} = require('./../models/user')
 const {
     todos, fillTodos,
-    fillBoards,
+    boards, fillBoards,
     users, fillUsers,
 } = require('./seed/seed')
 
 beforeEach(fillUsers)
 beforeEach(fillTodos)
 beforeEach(fillBoards)
+beforeEach((done) => {
+    List.deleteMany({}).then(() => done())
+})
 
 describe('POST /todos', () => {
     it('should create a new todo', (done) => {
@@ -283,6 +287,56 @@ describe('GET /boards', () => {
                 expect(res.body.boards.length).toBe(2)
             })
             .end(done)
+    })
+})
+
+describe('POST /lists', () => {
+    it('should create a new list', (done) => {
+        const title = 'Test list title'
+        const _id = boards[0]._id
+        request(app)
+            .post('/lists')
+            .set('x-auth', users[0].tokens[0].token)
+            .send({
+                title,
+                _id
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.title).toBe(title)
+                expect(res.body._parent).toBe(_id.toHexString())
+            })
+            .end((err, res) => {
+                if (err) {
+                    return done(err)
+                }
+                List
+                    .find({ title, _parent: _id })
+                    .then((lists) => {
+                        expect(lists.length).toBe(1)
+                        expect(lists[0].title).toBe(title)
+                        expect(lists[0]._parent).toEqual(_id)
+                        done()
+                    })
+                    .catch((e) => done(e))
+            })
+    })
+
+    it('should not create list with invalid data', (done) => {
+        request(app)
+            .post('/lists')
+            .set('x-auth', users[0].tokens[0].token)
+            .send({})
+            .expect(400)
+            .end((err, res) => {
+                if (err) {
+                    return done(err)
+                }
+                List.find().then((lists) => {
+                    expect(lists.length).toBe(0)
+                    done()
+                }).catch((err) => done(err))
+            })
     })
 })
 

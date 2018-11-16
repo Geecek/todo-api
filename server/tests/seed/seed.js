@@ -85,6 +85,7 @@ const fillUsers = (done) => {
 
 module.exports = {
     todos,
+    boards,
     users,
     fillTodos,
     fillBoards,
