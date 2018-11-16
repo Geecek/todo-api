@@ -9,6 +9,7 @@ const {mongoose} = require('./db/mongoose')
 const {ObjectID} = require('mongodb')
 const {Todo} = require('./models/todo')
 const {Board} = require('./models/board')
+const {List} = require('./models/list')
 const {User} = require('./models/user')
 const {authenticate} = require('./middleware/authenticate')
 
@@ -171,6 +172,20 @@ app.get('/boards', authenticate, (req, res) => {
         res.send({
             err
         })
+    })
+})
+
+app.post('/lists', authenticate, (req, res) => {
+    const list = new List({
+        _owner: req.user._id,
+        _parent: req.body._id,
+        title: req.body.title
+    })
+
+    list.save().then((doc) => {
+        res.send(doc)
+    }, (err) => {
+        res.status(400).send(err)
     })
 })
 
