@@ -10,15 +10,14 @@ const {User} = require('./../models/user')
 const {
     todos, fillTodos,
     boards, fillBoards,
+    fillLists,
     users, fillUsers,
 } = require('./seed/seed')
 
 beforeEach(fillUsers)
 beforeEach(fillTodos)
 beforeEach(fillBoards)
-beforeEach((done) => {
-    List.deleteMany({}).then(() => done())
-})
+beforeEach(fillLists)
 
 describe('POST /todos', () => {
     it('should create a new todo', (done) => {
@@ -333,10 +332,24 @@ describe('POST /lists', () => {
                     return done(err)
                 }
                 List.find().then((lists) => {
-                    expect(lists.length).toBe(0)
+                    expect(lists.length).toBe(3)
                     done()
                 }).catch((err) => done(err))
             })
+    })
+})
+
+describe('GET /lists', () => {
+    it('should get all lists', (done) => {
+        request(app)
+            .get('/lists')
+            .set('x-auth', users[0].tokens[0].token)
+            .query({ _id: boards[0]._id.toHexString() })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.lists.length).toBe(2)
+            })
+            .end(done)
     })
 })
 

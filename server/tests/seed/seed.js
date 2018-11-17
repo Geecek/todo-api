@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 
 const {Todo} = require('./../../models/todo')
 const {Board} = require('./../../models/board')
+const {List} = require('./../../models/list')
 const {User} = require('./../../models/user')
 
 const firstUserID = new ObjectID()
@@ -25,21 +26,45 @@ const users = [{
     }]
 }]
 
+const firstBoardID = new ObjectID()
+const secondBoardID = new ObjectID()
+const thirdBoardID = new ObjectID()
 const boards = [
     {
         _owner: firstUserID,
-        _id: new ObjectID(),
+        _id: firstBoardID,
         title: 'First test board'
     },
     {
         _owner: firstUserID,
-        _id: new ObjectID(),
+        _id: secondBoardID,
         title: 'Second test board',
     },
     {
         _owner: secondUserID,
-        _id: new ObjectID(),
+        _id: thirdBoardID,
         title: 'Third test board'
+    }
+]
+
+const lists = [
+    {
+        _owner: firstUserID,
+        _parent: firstBoardID,
+        _id: new ObjectID(),
+        title: 'First test list'
+    },
+    {
+        _owner: firstUserID,
+        _parent: firstBoardID,
+        _id: new ObjectID(),
+        title: 'Second test list',
+    },
+    {
+        _owner: secondUserID,
+        _parent: secondBoardID,
+        _id: new ObjectID(),
+        title: 'Third test list'
     }
 ]
 
@@ -75,6 +100,12 @@ const fillBoards = (done) => {
     }).then(() => done())
 }
 
+const fillLists = (done) => {
+    List.deleteMany({}).then(() => {
+        return List.insertMany(lists)
+    }).then(() => done())
+}
+
 const fillUsers = (done) => {
     User.remove({}).then(() => {
         const firstUser = new User(users[0]).save()
@@ -89,5 +120,6 @@ module.exports = {
     users,
     fillTodos,
     fillBoards,
+    fillLists,
     fillUsers
 }
