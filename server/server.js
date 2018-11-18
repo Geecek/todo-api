@@ -17,7 +17,7 @@ const app = express()
 const port = process.env.PORT
 
 app.use(bodyParser.json())
-app.use(cors())
+app.use(cors({exposedHeaders: 'x-auth'}))
 
 app.post('/todos', authenticate, (req, res) => {
     const todo = new Todo({
