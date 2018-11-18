@@ -47,23 +47,27 @@ const boards = [
     }
 ]
 
+
+const firstListID = new ObjectID()
+const secondListID = new ObjectID()
+const thirdListID = new ObjectID()
 const lists = [
     {
         _owner: firstUserID,
         _parent: firstBoardID,
-        _id: new ObjectID(),
+        _id: firstListID,
         title: 'First test list'
     },
     {
         _owner: firstUserID,
         _parent: firstBoardID,
-        _id: new ObjectID(),
+        _id: secondListID,
         title: 'Second test list',
     },
     {
         _owner: secondUserID,
         _parent: secondBoardID,
-        _id: new ObjectID(),
+        _id: thirdListID,
         title: 'Third test list'
     }
 ]
@@ -71,6 +75,7 @@ const lists = [
 const todos = [
     {
         _owner: firstUserID,
+        _parent: firstListID,
         _id: new ObjectID(),
         text: 'First test todo',
         completed: true,
@@ -78,11 +83,13 @@ const todos = [
     },
     {
         _owner: firstUserID,
+        _parent: firstListID,
         _id: new ObjectID(),
         text: 'Second test todo'
     },
     {
         _owner: secondUserID,
+        _parent: secondListID,
         _id: new ObjectID(),
         text: 'Third test todo'
     }
@@ -117,6 +124,7 @@ const fillUsers = (done) => {
 module.exports = {
     todos,
     boards,
+    lists,
     users,
     fillTodos,
     fillBoards,

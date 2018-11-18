@@ -10,7 +10,7 @@ const {User} = require('./../models/user')
 const {
     todos, fillTodos,
     boards, fillBoards,
-    fillLists,
+    lists, fillLists,
     users, fillUsers,
 } = require('./seed/seed')
 
@@ -27,7 +27,8 @@ describe('POST /todos', () => {
             .post('/todos')
             .set('x-auth', users[0].tokens[0].token)
             .send({
-                text
+                text,
+                _id: lists[0]._id
             })
             .expect(200)
             .expect((res) => {

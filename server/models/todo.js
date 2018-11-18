@@ -5,6 +5,10 @@ const Todo = mongoose.model('Todo', {
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
+    _parent: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
     text: {
         type: String,
         required: true,

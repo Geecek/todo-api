@@ -22,6 +22,7 @@ app.use(cors())
 app.post('/todos', authenticate, (req, res) => {
     const todo = new Todo({
         _owner: req.user._id,
+        _parent: req.body._id,
         text: req.body.text
     })
 
