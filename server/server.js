@@ -109,7 +109,7 @@ app.delete('/todos/:id', authenticate, (req, res) => {
 
 app.patch('/todos/:id', authenticate, (req, res) => {
     const id = req.params.id
-    const body = _.pick(req.body, ['text', 'completed'])
+    const body = {text, completed} = req.body
 
     if (!ObjectID.isValid(id)) {
         return res
@@ -202,26 +202,26 @@ app.get('/lists', authenticate, (req, res) => {
 })
 
 app.post('/users', (req, res) => {
-    const user = new User(_.pick(req.body, ['email', 'password']))
+    const user = new User({email, password} = req.body)
     user.save().then(() => {
         return user.generateAuthToken()
     }).then((token) => {
-        res.header('x-auth', token).send(_.pick(user, ['_id', 'email']))
+        res.header('x-auth', token).send({_id, email} = user)
     }).catch((err) => {
         res.status(400).send(err)
     })
 })
 
 app.get('/users/me', authenticate, (req, res) => {
-    res.send(_.pick(req.user, ['_id', 'email']))
+    res.send({_id, email} = req.user)
 })
 
 app.post('/users/login', (req, res) => {
-    const body = _.pick(req.body, ['email', 'password'])
+    const body = {email, password} = req.body
 
     User.findByCredentials(body.email, body.password).then((user) => {
         user.generateAuthToken().then((token) => {
-            res.header('x-auth', token).send(_.pick(user, ['_id', 'email']))
+            res.header('x-auth', token).send({_id, email} = user)
         })
     }).catch((e) => {
         res.status(400).send()
