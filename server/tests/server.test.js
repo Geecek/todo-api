@@ -176,19 +176,22 @@ describe('PATCH /todos/:id' , () => {
     it('should update the todo', (done) => {
         const id = todos[1]._id.toHexString()
         const text = 'New test todo'
+        const _parent = lists[1]._id.toHexString()
 
         request(app)
             .patch(`/todos/${id}`)
             .set('x-auth', users[0].tokens[0].token)
             .send({
                 text,
-                completed: true
+                completed: true,
+                _parent
             })
             .expect(200)
             .expect((res) => {
                 expect(res.body.todo.text).toBe(text)
                 expect(res.body.todo.completed).toBe(true)
                 expect(typeof res.body.todo.completedAt).toBe('number')
+                expect(res.body.todo._parent).toBe(_parent)
             })
             .end(done)
     })
