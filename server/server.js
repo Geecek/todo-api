@@ -109,7 +109,7 @@ app.delete('/todos/:id', authenticate, (req, res) => {
 
 app.patch('/todos/:id', authenticate, (req, res) => {
     const id = req.params.id
-    const body = {text, completed} = req.body
+    const body = {text, completed, _parent} = req.body
 
     if (!ObjectID.isValid(id)) {
         return res
