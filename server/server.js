@@ -201,6 +201,35 @@ app.get('/lists', authenticate, (req, res) => {
     })
 })
 
+app.delete('/lists/:id', authenticate, (req, res) => {
+    const id = req.params.id
+
+    if (!ObjectID.isValid(id)) {
+        return res
+            .status(404)
+            .send()
+    }
+
+    List.findOneAndDelete({
+        _id: id,
+        _owner: req.user._id
+    }).then((list) => {
+        if (!list) {
+            return res
+                .status(404)
+                .send()
+        }
+        Todo.deleteMany({
+            _parent: id,
+            _owner: req.user._id 
+        })
+    }).catch((err) => {
+        res
+            .status(400)
+            .send()
+    })
+})
+
 app.post('/users', (req, res) => {
     const user = new User({email, password} = req.body)
     user.save().then(() => {
